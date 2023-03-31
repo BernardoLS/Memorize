@@ -9,67 +9,102 @@ import SwiftUI
 
 struct ContentView: View {
     
-    struct CardContent: Identifiable {
-        var id: String
-        var content: String
+//    struct CardContent: Identifiable {
+//        var id: String
+//        var content: String
+//    }
+//
+//    let cardContents: [CardContent] =
+//    [
+//        CardContent(id:"01", content: "🏎"),
+//        CardContent(id:"02", content: "🚀"),
+//        CardContent(id:"03", content: "🏎"),
+//        CardContent(id:"04", content: "🚀"),
+//
+//    ]
+    
+    init(emojisCount: Int = 3) {
+        self.emojisCount = emojisCount
+        self.emojis = carEmojis.shuffled()
     }
     
-    let cardContents: [CardContent] =
-    [
-        CardContent(id:"01", content: "🏎"),
-        CardContent(id:"02", content: "🚀"),
-        CardContent(id:"03", content: "🏎"),
-        CardContent(id:"04", content: "🚀"),
-        
-    ]
-    
-    @State var emojisCount = 3
-    
-    let emojis: [String] = [
+    let carEmojis: [String] = [
         "🏎","🚀", "🚒", "🚑", "🛸", "✈️", "🚁", "🚜", "🚔", "🛶",
         "🚗", "🚛", "🛵", "🚂", "🚌", "🛴", "🚲", "🚤", "🚚", "🏍"
     ]
     
+    let animalsEmojis: [String] = [
+        "🐶","🐭", "🐹", "🐰", "🐻", "🐼", "🐻‍❄️", "🐦", "🐍", "🦁",
+        "🐱", "🐮", "🐸", "🦊", "🦉",
+    ]
+    
+    let flagEmojis: [String] = [
+        "🇯🇵","🇮🇹", "🇺🇾", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "🇵🇹", "🇲🇽", "🇧🇷", "🇨🇦", "🇺🇸", "🇦🇷"
+    ]
+    
+    @State var emojisCount = 1
+    
+    @State var emojis: [String]
+    
     var body: some View {
         VStack {
+            Text("Memorize!")
+                .font(.largeTitle)
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    ForEach(emojis[0..<emojisCount], id: \.self) { emoji in
+                    ForEach(emojis, id: \.self) { emoji in
                         CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
                     }
                 }
-            }
+            }.foregroundColor(.red)
             Spacer()
             HStack {
-                removeButton
+                SelectButton(
+                    imageName: "car",
+                    textLabel: "Veiculos",
+                    onTap: {
+                        emojis = carEmojis.shuffled()
+                    }
+                )
                 Spacer()
-                addButton
-            }.font(.largeTitle)
-            .padding(.horizontal)
+                SelectButton(
+                    imageName: "flag",
+                    textLabel: "Bandeiras",
+                    onTap: {
+                        emojis = flagEmojis.shuffled()
+                    }
+                )
+                Spacer()
+                SelectButton(
+                    imageName: "hare",
+                    textLabel: "Animais",
+                    onTap: {
+                        emojis = animalsEmojis.shuffled()
+                    }
+                )
+            }.padding(.horizontal)
         }
-        .foregroundColor(.red)
         .padding(.horizontal)
         
     }
-    var removeButton: some View {
-        Button(
-            action: {
-                if emojisCount > 1 {
-                    emojisCount -= 1
-                }
-            },
-            label: { Image(systemName: "minus.circle") }
-        )
-    }
     
-    var addButton: some View {
-        Button(action: {
-            if emojisCount < emojis.count {
-                emojisCount += 1
+    
+    struct SelectButton: View {
+        var imageName: String
+        var textLabel: String
+        var onTap: () -> Void
+        
+        var body: some View {
+            VStack {
+                Button(action: {
+                    onTap()
+                }, label: {
+                    Image(systemName: imageName)
+                }).font(.largeTitle)
+                Text(textLabel)
+                    .font(.subheadline).foregroundColor(.blue)
             }
-        }, label: {
-            Image(systemName: "plus.circle")
-        })
+        }
     }
     
     struct CardView: View {
