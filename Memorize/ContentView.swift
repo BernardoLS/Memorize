@@ -11,34 +11,35 @@ struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
         
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))]) {
-                ForEach(viewModel.cards) { card in
-                    CardView(card: card)
-                        .aspectRatio(2/3, contentMode: .fit)
-                        .onTapGesture {
-                            viewModel.chooseCard(card)
-                        }
+
+        AspectVGrid(items: viewModel.cards, aspectRatio: 2/3, content: { card in
+            CardView(card: card)
+                .padding(4)
+                .onTapGesture {
+                    viewModel .chooseCard(card)
                 }
-            }
-        }
+        })
         .foregroundColor(.red)
         .padding(.horizontal)
         
     }
     
     struct CardView: View {
-        var card: MemoryGame<String>.Card
-        
+        let card: MemoryGame<String>.Card
         var body: some View {
             GeometryReader { geometry in
                 ZStack {
                     let shape = RoundedRectangle(cornerRadius: DrawingConstants.cornerRadius)
-                    
+
                     if card.isFaceUp {
                         shape.fill().foregroundColor(.white)
                         shape.strokeBorder(lineWidth: DrawingConstants.lineWidth)
-                        Text(card.content).font(font(geometry?.size))
+                        Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110-90))
+                            .padding(4).opacity(0.5)
+                        Text(card.content).font(
+                            Font.system(size: min(geometry.size.width, geometry.size.height) * DrawingConstants.fontScale)
+                        )
+
                     } else if card.isMatched {
                         shape.opacity(0)
                     } else {
@@ -59,10 +60,11 @@ struct ContentView: View {
             ContentView(viewModel: game)
         }
     }
-    
+  
     private struct DrawingConstants {
-        static let cornerRadius: CGFloat = 20
+        static let cornerRadius: CGFloat = 10
         static let lineWidth: CGFloat = 3
-        static let fontScale: CGFloat = 0.8
+        static let fontScale: CGFloat = 0.60
+
     }
 }
