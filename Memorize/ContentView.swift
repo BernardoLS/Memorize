@@ -11,15 +11,14 @@ struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
         
     var body: some View {
-        VStack {
-            ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 95))]) {
-                    ForEach(viewModel.cards) { card in
-                        CardView(card: card)
-                            .onTapGesture {
-                                viewModel.chooseCard(card)
-                            }
-                    }
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))]) {
+                ForEach(viewModel.cards) { card in
+                    CardView(card: card)
+                        .aspectRatio(2/3, contentMode: .fit)
+                        .onTapGesture {
+                            viewModel.chooseCard(card)
+                        }
                 }
             }
         }
@@ -32,21 +31,26 @@ struct ContentView: View {
         var card: MemoryGame<String>.Card
         
         var body: some View {
-            ZStack {
-                let shape = RoundedRectangle(cornerRadius: 20)
-                
-                if card.isFaceUp {
-                    shape.foregroundColor(.white)
-                    shape.strokeBorder(lineWidth: 2)
-                    Text(card.content).font(.largeTitle)
-                } else if card.isMatched {
-                    shape.opacity(0)
-                } else {
-                    shape
+            GeometryReader { geometry in
+                ZStack {
+                    let shape = RoundedRectangle(cornerRadius: DrawingConstants.cornerRadius)
+                    
+                    if card.isFaceUp {
+                        shape.fill().foregroundColor(.white)
+                        shape.strokeBorder(lineWidth: DrawingConstants.lineWidth)
+                        Text(card.content).font(font(geometry?.size))
+                    } else if card.isMatched {
+                        shape.opacity(0)
+                    } else {
+                        shape.fill()
+                    }
                 }
-                
-            }.aspectRatio(2/3, contentMode: .fit)
+            }
         }
+    }
+    
+    private func font(in size: CGSize) -> Font {
+        Font.system(size: min(size.width, size.height) * DrawingConstants.fontScale)
     }
     
     struct ContentView_Previews: PreviewProvider {
@@ -55,24 +59,10 @@ struct ContentView: View {
             ContentView(viewModel: game)
         }
     }
+    
+    private struct DrawingConstants {
+        static let cornerRadius: CGFloat = 20
+        static let lineWidth: CGFloat = 3
+        static let fontScale: CGFloat = 0.8
+    }
 }
-//    var removeButton: some View {
-//        Button(
-//            action: {
-//                if emojisCount > 1 {
-//                    emojisCount -= 1
-//                }
-//            },
-//            label: { Image(systemName: "minus.circle") }
-//        )
-//    }
-//
-//    var addButton: some View {
-//        Button(action: {
-//            if emojisCount < emojis.count {
-//                emojisCount += 1
-//            }
-//        }, label: {
-//            Image(systemName: "plus.circle")
-//        })
-//    }
